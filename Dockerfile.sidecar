@@ -11,7 +11,7 @@ FROM golang:${GO_VERSION}-buster
 COPY /go.mod /go.mod
 
 # Download deps.
-RUN cd / && go mod download
+RUN cd / && GOPROXY=https://goproxy.cn go mod download -x
 
 # Now copy the rest of the source and run the build.
 COPY . /
@@ -26,6 +26,12 @@ RUN cd / && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X github.c
 #:::
 
 FROM debian:buster
+
+
+
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+RUN sed -i 's|security.debian.org/debian-security|mirrors.ustc.edu.cn/debian-security|g' /etc/apt/sources.list
+
 
 RUN apt update && apt install -y iptables
 RUN mkdir -p /usr/local/bin
